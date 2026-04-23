@@ -1,0 +1,61 @@
+# =============================================================================
+# VultronScanner — .gitignore
+# Attack Surface Manager | Professional Grade
+# =============================================================================
+
+# ── Python Runtime ────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+.Python
+
+# ── Virtual Environments ──────────────────────────────────────────────────────
+.venv/
+venv/
+env/
+ENV/
+.env
+
+# ── Sensitive Config & API Keys ──────────────────────────────────────────────
+.env
+.env.local
+.env.production
+*.key
+*.pem
+*.cert
+secrets.yaml
+secrets.json
+
+# ── Scan Outputs & Reports ───────────────────────────────────────────────────
+# (Üretilen raporlar — içerik hassas olabilir)
+Reports/Output/
+*.xml           # Nmap raw XML çıktısı
+*.gnmap         # Nmap grepable çıktısı
+*.nmap
+
+# ── IDE & Editor ─────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# ── Testing & Coverage ───────────────────────────────────────────────────────
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+*.egg-info/
+dist/
+build/
+
+# ── Logs ──────────────────────────────────────────────────────────────────────
+*.log
+logs/
+
+# ── Jupyter (olası notebook denemeleri) ──────────────────────────────────────
+.ipynb_checkpoints/
+*.ipynb
