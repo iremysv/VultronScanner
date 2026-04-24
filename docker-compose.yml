@@ -1,0 +1,38 @@
+# =============================================================================
+# VultronScanner — docker-compose.yml
+# =============================================================================
+
+version: "3.9"
+
+services:
+  vultronscanner:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    image: vultronscanner:latest
+    container_name: vultronscanner
+    network_mode: host          # Required for raw socket / nmap access
+    cap_add:
+      - NET_RAW                 # Required for SYN scans
+      - NET_ADMIN
+    env_file:
+      - .env
+    volumes:
+      - ./Reports/Output:/app/Reports/Output   # Persist scan reports
+      - ./Config:/app/Config:ro                # Read-only config mount
+    restart: "no"               # Scanner runs on-demand, not as a daemon
+    command: ["--help"]         # Override with actual scan command at runtime
+
+  # ── Optional: Report viewer (serves HTML reports) ─────────────────────────
+  report-viewer:
+    image: nginx:alpine
+    container_name: vultron-reports
+    ports:
+      - "8080:80"
+    volumes:
+      - ./Reports/Output:/usr/share/nginx/html:ro
+    depends_on:
+      - vultronscanner
+    profiles:
+      - reports                 # Only started with: docker compose --profile reports up
