@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: Test & Lint
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install system dependencies
+        run: sudo apt-get update && sudo apt-get install -y nmap
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-asyncio pytest-cov black isort flake8 bandit
+
+      - name: Format check (Black)
+        run: black --check --line-length=100 .
+
+      - name: Import order check (isort)
+        run: isort --check-only --profile=black .
+
+      - name: Lint (flake8)
+        run: flake8 . --max-line-length=100 --extend-ignore=E203,W503 --exclude=.venv
+
+      - name: Security scan (Bandit)
+        run: bandit -r . -ll --exclude .venv,Tests
+
+      - name: Run tests with coverage
+        run: pytest Tests/ -v --cov=. --cov-report=term-missing --cov-fail-under=80
