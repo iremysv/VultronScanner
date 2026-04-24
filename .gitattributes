@@ -1,0 +1,52 @@
+# =============================================================================
+# VultronScanner — .gitattributes
+# =============================================================================
+
+# Auto detect text files and perform LF normalization
+* text=auto eol=lf
+
+# Python
+*.py     text diff=python
+*.pyi    text diff=python
+*.ipynb  text
+
+# Configuration & markup
+*.yaml   text
+*.yml    text
+*.toml   text
+*.cfg    text
+*.ini    text
+*.md     text diff=markdown
+*.rst    text
+*.txt    text
+
+# Shell scripts
+*.sh     text eol=lf
+*.bash   text eol=lf
+
+# Web
+*.html   text diff=html
+*.css    text diff=css
+*.js     text
+
+# Docker
+Dockerfile       text
+*.dockerignore   text
+
+# Binary files — no diff, no merge
+*.png    binary
+*.jpg    binary
+*.jpeg   binary
+*.gif    binary
+*.ico    binary
+*.svg    binary
+*.pdf    binary
+*.ai     binary
+
+# Archives
+*.zip    binary
+*.tar    binary
+*.gz     binary
+
+# Linguist overrides (GitHub language stats)
+*.yaml   linguist-language=YAML
