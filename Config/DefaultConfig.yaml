@@ -1,0 +1,101 @@
+# =============================================================================
+# VultronScanner — Default Platform Configuration
+# Dosya: Config/DefaultConfig.yaml
+# Commit: feat(config): add default platform configuration with async and logging settings
+# =============================================================================
+
+# ── Platform Kimliği ──────────────────────────────────────────────────────────
+platform:
+  name: "VultronScanner"
+  version: "1.0.0"
+  description: "Modular Attack Surface Manager"
+  author: "İrem Yasav"
+  institution: "İstinye Üniversitesi"
+
+# ── Async Runtime Ayarları ────────────────────────────────────────────────────
+async:
+  max_concurrent_tasks: 25       # Paralel çalışabilecek maksimum görev sayısı
+  task_timeout_seconds: 120      # Tek bir görev için maksimum bekleme süresi
+  connection_timeout_seconds: 10 # TCP bağlantı zaman aşımı
+  retry_attempts: 3              # Başarısız görev için yeniden deneme sayısı
+  retry_delay_seconds: 2         # Denemeler arası bekleme süresi
+
+# ── Loglama Ayarları ──────────────────────────────────────────────────────────
+logging:
+  level: "INFO"                  # DEBUG | INFO | WARNING | ERROR | CRITICAL
+  enable_file_logging: true
+  log_directory: "logs/"
+  log_filename: "vultron.log"
+  max_log_size_mb: 10
+  backup_count: 5                # Tutulacak eski log dosyası sayısı
+  format: "[%(asctime)s] [%(levelname)s] %(name)s — %(message)s"
+  date_format: "%Y-%m-%d %H:%M:%S"
+  rich_console: true             # Rich kütüphanesi ile renkli terminal çıktısı
+
+# ── Ağ Ayarları ───────────────────────────────────────────────────────────────
+network:
+  dns_servers:
+    - "8.8.8.8"
+    - "8.8.4.4"
+    - "1.1.1.1"
+  resolve_hostnames: true
+  enable_ipv6: false
+  max_ping_count: 3              # Alive host tespitinde ping sayısı
+  ping_timeout_ms: 1000
+
+# ── Nmap Motoru Ayarları ──────────────────────────────────────────────────────
+nmap:
+  binary_path: "nmap"            # Nmap binary konumu (PATH'te olmalı)
+  default_arguments: "-sV -sC"   # Servis versiyonu + varsayılan scriptler
+  timing_template: 3             # T0(paranoid) ~ T5(insane) — T3 normal
+  max_retries: 2
+  host_timeout: "10m"            # Tek bir host için maksimum tarama süresi
+
+# ── Web Analyzer Ayarları ─────────────────────────────────────────────────────
+web:
+  user_agent: "VultronScanner/1.0 (Security Research)"
+  request_timeout_seconds: 15
+  follow_redirects: true
+  max_redirects: 5
+  verify_ssl: false              # İmzasız sertifikalar da analiz edilsin
+  check_headers:                 # Kontrol edilecek güvenlik başlıkları
+    - "Strict-Transport-Security"
+    - "Content-Security-Policy"
+    - "X-Frame-Options"
+    - "X-Content-Type-Options"
+    - "Referrer-Policy"
+    - "Permissions-Policy"
+    - "X-XSS-Protection"
+
+# ── CVE / NVD API Ayarları ────────────────────────────────────────────────────
+cve:
+  api_base_url: "https://services.nvd.nist.gov/rest/json/cves/2.0"
+  api_key_env_var: "NVD_API_KEY"    # .env dosyasındaki değişken adı
+  results_per_page: 20
+  request_delay_seconds: 0.6        # NVD rate limit: 5 istek/30sn (API key ile)
+  cache_results: true
+  cache_ttl_hours: 24
+
+# ── CVSS Risk Eşik Değerleri ──────────────────────────────────────────────────
+cvss:
+  thresholds:
+    critical: 9.0                # CVSS >= 9.0 → CRITICAL
+    high: 7.0                    # CVSS >= 7.0 → HIGH
+    medium: 4.0                  # CVSS >= 4.0 → MEDIUM
+    low: 0.1                     # CVSS >= 0.1 → LOW
+    none: 0.0                    # CVSS = 0.0  → INFORMATIONAL
+
+# ── Rapor Ayarları ────────────────────────────────────────────────────────────
+reports:
+  output_directory: "Reports/Output/"
+  default_format: "html"         # html | markdown | json
+  include_raw_nmap: false        # Ham Nmap XML çıktısını rapora ekle
+  include_executive_summary: true
+  company_name: "İstinye Üniversitesi"
+  report_title_prefix: "VultronScanner Güvenlik Raporu"
+
+# ── Oturum (Session) Ayarları ─────────────────────────────────────────────────
+session:
+  save_session: true
+  session_directory: ".sessions/"
+  auto_resume: false             # Yarım kalan taramayı otomatik devam ettir
