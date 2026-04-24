@@ -1,0 +1,64 @@
+# =============================================================================
+# VultronScanner — .dockerignore
+# =============================================================================
+
+# Git
+.git
+.gitignore
+.gitattributes
+.github
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Test & coverage
+Tests/
+.pytest_cache/
+.coverage
+htmlcov/
+*.xml
+
+# Scan outputs & reports (sensitive data)
+Reports/Output/
+Scans/
+*.json
+*.html
+!Templates/*.html
+
+# Secrets & config
+.env
+.env.*
+!.env.example
+Config/Secrets/
+
+# Editor & OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.idea/
+.vscode/
+
+# Documentation (not needed in image)
+Docs/
+Demo/
+*.md
+!README.md
+
+# Dev tools
+.pre-commit-config.yaml
+.editorconfig
+Makefile
