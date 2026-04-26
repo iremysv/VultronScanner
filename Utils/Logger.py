@@ -25,7 +25,6 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
-import os
 import threading
 from datetime import datetime, timezone
 from enum import IntEnum
@@ -82,18 +81,19 @@ _console = Console(theme=VULTRON_THEME, highlight=True, markup=True)
 
 # Level → (icon, style) mapping for Rich output
 _LEVEL_META: Dict[int, tuple[str, str]] = {
-    TRACE_LEVEL:        ("󰜏 ", "log.trace"),
-    logging.DEBUG:      ("󰃤 ", "log.debug"),
-    logging.INFO:       (" ", "log.info"),
-    logging.WARNING:    (" ", "log.warning"),
-    logging.ERROR:      (" ", "log.error"),
-    logging.CRITICAL:   ("󰚑 ", "log.critical"),
+    TRACE_LEVEL: ("󰜏 ", "log.trace"),
+    logging.DEBUG: ("󰃤 ", "log.debug"),
+    logging.INFO: (" ", "log.info"),
+    logging.WARNING: (" ", "log.warning"),
+    logging.ERROR: (" ", "log.error"),
+    logging.CRITICAL: ("󰚑 ", "log.critical"),
 }
 
 
 # ---------------------------------------------------------------------------
 # JSON file handler (async-safe)
 # ---------------------------------------------------------------------------
+
 
 class _JsonFileHandler(logging.Handler):
     """Writes structured JSON-line records to a rotating log file."""
@@ -124,6 +124,7 @@ class _JsonFileHandler(logging.Handler):
 # ---------------------------------------------------------------------------
 # Core logger class
 # ---------------------------------------------------------------------------
+
 
 class VultronLogger:
     """
@@ -196,9 +197,7 @@ class VultronLogger:
         extra = {"ctx": self._build_extra(ctx)}
         # Append key=value tags to message for Rich display
         if ctx:
-            tags = "  ".join(
-                f"[log.tag]{k}[/]=[log.target]{v}[/]" for k, v in ctx.items()
-            )
+            tags = "  ".join(f"[log.tag]{k}[/]=[log.target]{v}[/]" for k, v in ctx.items())
             msg = f"{msg}  {tags}"
         self._logger.log(level, msg, extra=extra, stacklevel=3)
 

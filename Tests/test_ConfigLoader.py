@@ -24,7 +24,6 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from Core.ConfigLoader import ConfigLoader, VultronConfig
 
-
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
@@ -202,10 +201,12 @@ class TestUnknownProfileFallback:
 class TestPydanticValidation:
     def test_timing_template_out_of_range_raises(self):
         from Core.ConfigLoader import NmapConfig
+
         with pytest.raises(Exception):
             NmapConfig(arguments="-sV", timing_template=6)
 
     def test_timing_template_zero_ok(self):
         from Core.ConfigLoader import NmapConfig
+
         cfg = NmapConfig(timing_template=0)
         assert cfg.timing_template == 0

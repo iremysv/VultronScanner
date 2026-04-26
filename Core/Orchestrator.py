@@ -29,12 +29,10 @@ Usage
 from __future__ import annotations
 
 import asyncio
-from datetime import datetime, timezone
-from typing import Optional
 
 from Core.ConfigLoader import VultronConfig
 from Core.EventBus import EventBus
-from Core.Models import EventTopic, HostResult, ScanEvent, SessionState
+from Core.Models import EventTopic, HostResult, ScanEvent
 from Core.SessionManager import SessionManager
 from Modules.Discovery.HostDiscovery import HostDiscovery
 from Modules.Discovery.NetworkScanner import NetworkScanner
@@ -82,13 +80,13 @@ class Orchestrator:
             Completed session containing all findings.
         """
         bus = EventBus()
-        sm  = SessionManager(target=target, profile=self._cfg.profile_key)
+        sm = SessionManager(target=target, profile=self._cfg.profile_key)
         logger = get_logger("orchestrator", session_id=sm.session_id)
 
         # Log startup banner
         logger.banner(
-            title    = f"VultronScanner — {self._cfg.profile_name}",
-            subtitle = f"Target: {target}  |  Profile: {self._cfg.profile_key}  |  Session: {sm.session_id[:8]}",
+            title=f"VultronScanner — {self._cfg.profile_name}",
+            subtitle=f"Target: {target}  |  Profile: {self._cfg.profile_key}  |  Session: {sm.session_id[:8]}",
         )
 
         # Wire up EventBus → SessionManager
@@ -131,10 +129,10 @@ class Orchestrator:
 
     async def _run_discovery(
         self,
-        target:  str,
-        bus:     EventBus,
-        sm:      SessionManager,
-        logger:  VultronLogger,
+        target: str,
+        bus: EventBus,
+        sm: SessionManager,
+        logger: VultronLogger,
         dry_run: bool,
     ) -> None:
         cfg = self._cfg
@@ -173,13 +171,13 @@ class Orchestrator:
             payload = event.payload
             if "ip" in payload and event.source == "HostDiscovery":
                 # Minimal alive record — NetworkScanner will enrich it later
-                from Core.Models import HostResult
                 host = HostResult(
-                    ip       = payload["ip"],
-                    hostname = payload.get("hostname"),
-                    is_alive = True,
+                    ip=payload["ip"],
+                    hostname=payload.get("hostname"),
+                    is_alive=True,
                 )
                 sm.add_host(host)
+
         return _handler
 
     @staticmethod
@@ -187,6 +185,7 @@ class Orchestrator:
         async def _handler(event: ScanEvent) -> None:
             msg = event.payload.get("message", "unknown error")
             sm.add_error(f"[{event.source}] {msg}")
+
         return _handler
 
     # ------------------------------------------------------------------
@@ -199,18 +198,18 @@ class Orchestrator:
         logger.section("Scan Summary")
         logger.info(
             "Results",
-            alive_hosts   = s["alive_hosts"],
-            open_ports    = s["open_ports"],
-            errors        = s["errors"],
-            elapsed_sec   = f"{s['elapsed_sec'] or 0:.1f}",
+            alive_hosts=s["alive_hosts"],
+            open_ports=s["open_ports"],
+            errors=s["errors"],
+            elapsed_sec=f"{s['elapsed_sec'] or 0:.1f}",
         )
         risk = s.get("risk_breakdown", {})
         if any(risk.values()):
             logger.info(
                 "Risk breakdown",
-                critical     = risk.get("CRITICAL", 0),
-                high         = risk.get("HIGH", 0),
-                medium       = risk.get("MEDIUM", 0),
-                low          = risk.get("LOW", 0),
-                informational= risk.get("INFORMATIONAL", 0),
+                critical=risk.get("CRITICAL", 0),
+                high=risk.get("HIGH", 0),
+                medium=risk.get("MEDIUM", 0),
+                low=risk.get("LOW", 0),
+                informational=risk.get("INFORMATIONAL", 0),
             )

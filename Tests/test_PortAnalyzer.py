@@ -32,7 +32,6 @@ from Core.Models import (
 )
 from Modules.Discovery.PortAnalyzer import PortAnalyzer
 
-
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
@@ -182,9 +181,7 @@ class TestSafePorts:
     def test_safe_port_informational(self, analyzer, port):
         host = make_host(make_port(port))
         analyzer.analyze(host)
-        assert host.ports[0].risk == RiskLevel.INFORMATIONAL, (
-            f"Port {port} should be INFORMATIONAL"
-        )
+        assert host.ports[0].risk == RiskLevel.INFORMATIONAL, f"Port {port} should be INFORMATIONAL"
 
 
 # ---------------------------------------------------------------------------
@@ -214,8 +211,8 @@ class TestClosedPortsSkipped:
 class TestHostRiskAggregation:
     def test_host_risk_matches_highest_port(self, analyzer):
         host = make_host(
-            make_port(443),   # INFORMATIONAL
-            make_port(80),    # LOW
+            make_port(443),  # INFORMATIONAL
+            make_port(80),  # LOW
             make_port(3389),  # HIGH
         )
         analyzer.analyze(host)
@@ -224,7 +221,7 @@ class TestHostRiskAggregation:
     def test_host_with_critical_port(self, analyzer):
         host = make_host(
             make_port(443),
-            make_port(23),   # CRITICAL
+            make_port(23),  # CRITICAL
         )
         analyzer.analyze(host)
         assert host.risk == RiskLevel.CRITICAL
