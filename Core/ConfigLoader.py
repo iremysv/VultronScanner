@@ -240,6 +240,11 @@ class ConfigLoader:
         profiles = self._load_yaml(self.PROFILES_CONFIG)
         return list(profiles.get("profiles", {}).keys())
 
+    def get_profiles_data(self) -> Dict[str, Any]:
+        """Return the full profiles dict from ScanProfiles.yaml."""
+        raw = self._load_yaml(self.PROFILES_CONFIG)
+        return raw.get("profiles", {})
+
     # ------------------------------------------------------------------
     # Internal helpers
     # ------------------------------------------------------------------

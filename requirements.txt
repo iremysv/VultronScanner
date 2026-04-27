@@ -6,6 +6,7 @@
 # ── Core Async Runtime ────────────────────────────────────────────────────────
 aiohttp==3.9.5          # Async HTTP client — CVE/NVD API sorguları & web analizi
 aiofiles==23.2.1        # Async dosya I/O — rapor yazımı
+httpx==0.27.0           # Modern async HTTP client — WebAnalyzer & VulnerabilityEngine
 
 # ── Network & Discovery ───────────────────────────────────────────────────────
 python-nmap==0.7.1      # Nmap Python wrapper — Discovery Engine core'u

@@ -183,8 +183,7 @@ def profiles() -> None:
     """Kullanılabilir tarama profillerini listele."""
     try:
         loader = ConfigLoader()
-        raw = loader._load_yaml("ScanProfiles.yaml")
-        profiles_data = raw.get("profiles", {})
+        profiles_data = loader.get_profiles_data()
     except FileNotFoundError as exc:
         console.print(f"[red]Config bulunamadı:[/red] {exc}")
         sys.exit(1)

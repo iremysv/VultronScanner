@@ -65,7 +65,6 @@ web:
     - "X-Content-Type-Options"
     - "Referrer-Policy"
     - "Permissions-Policy"
-    - "X-XSS-Protection"
 
 # ── CVE / NVD API Ayarları ────────────────────────────────────────────────────
 cve:
