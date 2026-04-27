@@ -73,6 +73,7 @@ class EventTopic(str, Enum):
     SCAN_STARTED = "scan.started"
     SCAN_COMPLETED = "scan.completed"
     MODULE_ERROR = "module.error"
+    INTEL_COMPLETE = "intel.complete"  # WebAnalyzer / VulnerabilityEngine
 
 
 class SessionState(str, Enum):
