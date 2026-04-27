@@ -29,7 +29,7 @@ from __future__ import annotations
 import asyncio
 import threading
 from collections import defaultdict
-from typing import Awaitable, Callable, DefaultDict, Dict, List, Optional
+from typing import Awaitable, Callable, DefaultDict, Dict, List
 
 from Core.Models import EventTopic, ScanEvent
 from Utils.Logger import get_logger
@@ -94,10 +94,7 @@ class EventBus:
         a slow handler does not block the publisher.
         """
         with self._lock:
-            handlers = (
-                list(self._handlers[event.topic])
-                + self._wildcard_handlers
-            )
+            handlers = list(self._handlers[event.topic]) + self._wildcard_handlers
             self._published += 1
 
         if not handlers:
@@ -152,7 +149,7 @@ class EventBus:
             return {
                 "published": self._published,
                 "delivered": self._delivered,
-                "topics":    len(self._handlers),
+                "topics": len(self._handlers),
                 "wildcards": len(self._wildcard_handlers),
             }
 

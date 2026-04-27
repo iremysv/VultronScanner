@@ -48,7 +48,7 @@ class SessionManager:
 
     def __init__(self, target: str, profile: str) -> None:
         self._session = ScanSession(target=target, profile=profile)
-        self._lock    = threading.Lock()
+        self._lock = threading.Lock()
         log.info(
             "Session initialised",
             session_id=self._session.session_id,
@@ -66,14 +66,14 @@ class SessionManager:
             if self._session.state != SessionState.INITIALISED:
                 log.warning("Session already started", state=self._session.state.value)
                 return
-            self._session.state      = SessionState.RUNNING
+            self._session.state = SessionState.RUNNING
             self._session.started_at = datetime.now(tz=timezone.utc)
         log.info("Session started", session_id=self.session_id)
 
     def complete(self) -> None:
         """Transition to COMPLETED and record end time."""
         with self._lock:
-            self._session.state        = SessionState.COMPLETED
+            self._session.state = SessionState.COMPLETED
             self._session.completed_at = datetime.now(tz=timezone.utc)
         elapsed = self._session.elapsed_seconds() or 0
         log.info(
@@ -86,7 +86,7 @@ class SessionManager:
     def fail(self, reason: str = "") -> None:
         """Transition to FAILED."""
         with self._lock:
-            self._session.state        = SessionState.FAILED
+            self._session.state = SessionState.FAILED
             self._session.completed_at = datetime.now(tz=timezone.utc)
             if reason:
                 self._session.errors.append(f"[FATAL] {reason}")
@@ -95,7 +95,7 @@ class SessionManager:
     def abort(self) -> None:
         """Transition to ABORTED (user-initiated cancel)."""
         with self._lock:
-            self._session.state        = SessionState.ABORTED
+            self._session.state = SessionState.ABORTED
             self._session.completed_at = datetime.now(tz=timezone.utc)
         log.warning("Session aborted", session_id=self.session_id)
 
@@ -148,15 +148,15 @@ class SessionManager:
             for p in all_ports:
                 risk_counts[p.risk.value] += 1
             return {
-                "session_id":    s.session_id,
-                "state":         s.state.value,
-                "target":        s.target,
-                "profile":       s.profile,
-                "elapsed_sec":   s.elapsed_seconds(),
-                "total_hosts":   len(s.hosts),
-                "alive_hosts":   len(alive),
-                "open_ports":    len(all_ports),
-                "errors":        len(s.errors),
+                "session_id": s.session_id,
+                "state": s.state.value,
+                "target": s.target,
+                "profile": s.profile,
+                "elapsed_sec": s.elapsed_seconds(),
+                "total_hosts": len(s.hosts),
+                "alive_hosts": len(alive),
+                "open_ports": len(all_ports),
+                "errors": len(s.errors),
                 "risk_breakdown": risk_counts,
             }
 

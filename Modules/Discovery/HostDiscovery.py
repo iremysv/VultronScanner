@@ -34,17 +34,17 @@ log = get_logger("host_discovery")
 
 # Riskli servisler — PortAnalyzer tarafından da kullanılır
 RISKY_SERVICES: dict[int, str] = {
-    21:   "FTP",
-    23:   "Telnet",
-    25:   "SMTP (unauthenticated)",
-    111:  "RPCbind",
-    135:  "MS-RPC",
-    137:  "NetBIOS",
-    139:  "NetBIOS",
-    445:  "SMB",
-    512:  "rexec",
-    513:  "rlogin",
-    514:  "rsh",
+    21: "FTP",
+    23: "Telnet",
+    25: "SMTP (unauthenticated)",
+    111: "RPCbind",
+    135: "MS-RPC",
+    137: "NetBIOS",
+    139: "NetBIOS",
+    445: "SMB",
+    512: "rexec",
+    513: "rlogin",
+    514: "rsh",
     1433: "MSSQL",
     1521: "Oracle DB",
     2049: "NFS",
@@ -53,7 +53,7 @@ RISKY_SERVICES: dict[int, str] = {
     5432: "PostgreSQL",
     5900: "VNC",
     6379: "Redis (unauthenticated)",
-    27017:"MongoDB (unauthenticated)",
+    27017: "MongoDB (unauthenticated)",
 }
 
 
@@ -75,14 +75,14 @@ class HostDiscovery:
 
     def __init__(
         self,
-        bus:     EventBus,
-        config:  VultronConfig,
+        bus: EventBus,
+        config: VultronConfig,
         dry_run: bool = False,
     ) -> None:
-        self._bus     = bus
-        self._cfg     = config
+        self._bus = bus
+        self._cfg = config
         self._dry_run = dry_run
-        self._sem     = asyncio.Semaphore(config.async_cfg.max_concurrent_tasks)
+        self._sem = asyncio.Semaphore(config.async_cfg.max_concurrent_tasks)
 
     # ------------------------------------------------------------------
     # Public API
@@ -100,7 +100,7 @@ class HostDiscovery:
         hosts = self._expand_target(target)
         log.info("Host discovery started", target=target, host_count=len(hosts))
 
-        tasks   = [asyncio.create_task(self._ping_host(ip)) for ip in hosts]
+        tasks = [asyncio.create_task(self._ping_host(ip)) for ip in hosts]
         results = await asyncio.gather(*tasks, return_exceptions=True)
 
         alive = [ip for ip, ok in zip(hosts, results) if ok is True]
@@ -122,7 +122,7 @@ class HostDiscovery:
             if self._dry_run:
                 # In dry-run, only 127.0.0.1 is "alive"
                 result = ip in ("127.0.0.1", "::1")
-                topic  = EventTopic.HOST_ALIVE if result else EventTopic.HOST_DEAD
+                topic = EventTopic.HOST_ALIVE if result else EventTopic.HOST_DEAD
                 await self._publish(topic, ip)
                 return result
 
@@ -140,9 +140,10 @@ class HostDiscovery:
     async def _icmp_ping(self, ip: str) -> bool:
         """Execute a system ping and return True on success."""
         ping_count = str(self._cfg.network.max_ping_count)
-        timeout_s  = str(self._cfg.network.ping_timeout_ms // 1000 or 1)
+        timeout_s = str(self._cfg.network.ping_timeout_ms // 1000 or 1)
 
         import platform
+
         if platform.system() == "Windows":
             cmd = ["ping", "-n", ping_count, "-w", str(self._cfg.network.ping_timeout_ms), ip]
         else:
@@ -174,10 +175,10 @@ class HostDiscovery:
                 pass
 
         event = ScanEvent(
-            topic      = topic,
-            session_id = "",          # filled by Orchestrator via SessionManager
-            source     = self.MODULE_NAME,
-            payload    = {"ip": ip, "hostname": hostname},
+            topic=topic,
+            session_id="",  # filled by Orchestrator via SessionManager
+            source=self.MODULE_NAME,
+            payload={"ip": ip, "hostname": hostname},
         )
         await self._bus.publish(event)
 

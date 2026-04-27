@@ -22,7 +22,7 @@ Usage
 from __future__ import annotations
 
 import asyncio
-from typing import List, Optional
+from typing import List
 
 from Core.ConfigLoader import VultronConfig
 from Core.EventBus import EventBus
@@ -31,7 +31,6 @@ from Core.Models import (
     HostResult,
     PortResult,
     PortState,
-    RiskLevel,
     ScanEvent,
 )
 from Core.SessionManager import SessionManager
@@ -46,12 +45,18 @@ log = get_logger("network_scanner")
 _MOCK_NMAP_DATA = {
     "127.0.0.1": {
         "hostname": "localhost",
-        "state":    "up",
+        "state": "up",
         "ports": [
-            {"port": 22,  "state": "open",   "name": "ssh",   "version": "OpenSSH 8.9", "cpe": ["cpe:/a:openbsd:openssh:8.9"]},
-            {"port": 80,  "state": "open",   "name": "http",  "version": "nginx 1.22",  "cpe": []},
-            {"port": 443, "state": "open",   "name": "https", "version": "nginx 1.22",  "cpe": []},
-            {"port": 8080,"state": "closed", "name": "http-alt","version": "",           "cpe": []},
+            {
+                "port": 22,
+                "state": "open",
+                "name": "ssh",
+                "version": "OpenSSH 8.9",
+                "cpe": ["cpe:/a:openbsd:openssh:8.9"],
+            },
+            {"port": 80, "state": "open", "name": "http", "version": "nginx 1.22", "cpe": []},
+            {"port": 443, "state": "open", "name": "https", "version": "nginx 1.22", "cpe": []},
+            {"port": 8080, "state": "closed", "name": "http-alt", "version": "", "cpe": []},
         ],
         "os": "Linux 5.x",
     }
@@ -76,12 +81,12 @@ class NetworkScanner:
 
     def __init__(
         self,
-        bus:     EventBus,
-        config:  VultronConfig,
+        bus: EventBus,
+        config: VultronConfig,
         dry_run: bool = False,
     ) -> None:
-        self._bus     = bus
-        self._cfg     = config
+        self._bus = bus
+        self._cfg = config
         self._dry_run = dry_run
 
     # ------------------------------------------------------------------
@@ -106,10 +111,10 @@ class NetworkScanner:
         """
         log.info(
             "Network scan started",
-            target   = target,
-            profile  = self._cfg.profile_key,
-            args     = self._cfg.nmap.arguments,
-            dry_run  = self._dry_run,
+            target=target,
+            profile=self._cfg.profile_key,
+            args=self._cfg.nmap.arguments,
+            dry_run=self._dry_run,
         )
 
         if self._dry_run:
@@ -129,8 +134,8 @@ class NetworkScanner:
 
         log.info(
             "Network scan complete",
-            hosts_found = len(hosts),
-            total_open  = sum(len(h.open_ports()) for h in hosts),
+            hosts_found=len(hosts),
+            total_open=sum(len(h.open_ports()) for h in hosts),
         )
         return hosts
 
@@ -146,9 +151,9 @@ class NetworkScanner:
             log.error("python-nmap not installed. Install with: pip install python-nmap")
             return {}
 
-        loop     = asyncio.get_event_loop()
-        cfg      = self._cfg.nmap
-        args     = cfg.arguments
+        loop = asyncio.get_event_loop()
+        cfg = self._cfg.nmap
+        args = cfg.arguments
         if cfg.port_range:
             args = f"-p {cfg.port_range} {args}"
 
@@ -184,13 +189,15 @@ class NetworkScanner:
                     cpe_list = []
                     if "cpe" in p and p["cpe"]:
                         cpe_list = [c for c in p["cpe"].split() if c]
-                    ports.append({
-                        "port":    port_num,
-                        "state":   p.get("state",   "unknown"),
-                        "name":    p.get("name",    "unknown"),
-                        "version": f"{p.get('product','')} {p.get('version','')}".strip(),
-                        "cpe":     cpe_list,
-                    })
+                    ports.append(
+                        {
+                            "port": port_num,
+                            "state": p.get("state", "unknown"),
+                            "name": p.get("name", "unknown"),
+                            "version": f"{p.get('product','')} {p.get('version','')}".strip(),
+                            "cpe": cpe_list,
+                        }
+                    )
 
             hostname = ""
             if info.hostname():
@@ -202,9 +209,9 @@ class NetworkScanner:
 
             result[host] = {
                 "hostname": hostname,
-                "state":    info.state(),
-                "ports":    ports,
-                "os":       os_guess,
+                "state": info.state(),
+                "ports": ports,
+                "os": os_guess,
             }
         return result
 
@@ -224,20 +231,20 @@ class NetworkScanner:
                 state = PortState.CLOSED
 
             pr = PortResult(
-                port     = int(p["port"]),
-                state    = state,
-                service  = p.get("name",    "unknown"),
-                version  = p.get("version", ""),
-                cpe      = p.get("cpe",     []),
+                port=int(p["port"]),
+                state=state,
+                service=p.get("name", "unknown"),
+                version=p.get("version", ""),
+                cpe=p.get("cpe", []),
             )
             port_results.append(pr)
 
         host = HostResult(
-            ip       = ip,
-            hostname = data.get("hostname") or None,
-            is_alive = data.get("state", "") == "up",
-            os_guess = data.get("os") or None,
-            ports    = port_results,
+            ip=ip,
+            hostname=data.get("hostname") or None,
+            is_alive=data.get("state", "") == "up",
+            os_guess=data.get("os") or None,
+            ports=port_results,
         )
         host.risk = host.highest_risk()
         return host
@@ -248,27 +255,27 @@ class NetworkScanner:
 
     async def _publish_port(
         self,
-        port:       PortResult,
-        ip:         str,
+        port: PortResult,
+        ip: str,
         session_id: str,
     ) -> None:
         event = ScanEvent(
-            topic      = EventTopic.PORT_DISCOVERED,
-            session_id = session_id,
-            source     = self.MODULE_NAME,
-            payload    = {
-                "ip":      ip,
-                "port":    port.port,
+            topic=EventTopic.PORT_DISCOVERED,
+            session_id=session_id,
+            source=self.MODULE_NAME,
+            payload={
+                "ip": ip,
+                "port": port.port,
                 "service": port.service,
                 "version": port.version,
-                "state":   port.state.value,
+                "state": port.state.value,
             },
         )
         await self._bus.publish(event)
         log.debug(
             "Port discovered",
-            ip      = ip,
-            port    = port.port,
-            service = port.service,
-            state   = port.state.value,
+            ip=ip,
+            port=port.port,
+            service=port.service,
+            state=port.state.value,
         )
