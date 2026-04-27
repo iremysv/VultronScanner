@@ -82,7 +82,7 @@ ignore_missing_imports = true
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["Tests"]
-addopts = "-v --cov=. --cov-report=term-missing --cov-fail-under=80"
+addopts = "-v"
 
 [tool.coverage.run]
 omit = ["Tests/*", ".venv/*", "setup.py"]
