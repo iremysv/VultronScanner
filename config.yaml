@@ -1,0 +1,14 @@
+targets:
+  - host: "scanme.nmap.org"
+    ports: "80,443"
+    scheme: "http"
+    timeout: 5
+
+scan_settings:
+  default_ports: "1-1024"
+  timeout: 10
+  modules:
+    nmap: true
+    headers: true
+    ssl: true
+    web: true
