@@ -32,6 +32,9 @@ from pathlib import Path
 from Core.ConfigLoader import ConfigLoader
 from Core.Models import ScanResult, TargetConfig
 from Modules.HeaderAnalyzer.HeaderScanner import HeaderScanner
+from Modules.Intelligence.ThreatScorer import ThreatScorer
+from Modules.Intelligence.VulnerabilityEngine import VulnerabilityEngine
+from Modules.Intelligence.WebAnalyzer import WebAnalyzer
 from Modules.Reporter.ReportEngine import ReportEngine
 from Modules.SSLAnalyzer.SSLChecker import SSLChecker
 from Modules.ViseNmap.NmapScannerTool import NmapScannerTool
@@ -158,6 +161,35 @@ class Orchestrator:
                 print(f"    │   └─ {len(findings)} bulgu")
             except Exception as exc:  # noqa: BLE001
                 print(f"    │   └─ ⚠️  SSL hatası: {exc}")
+
+        # ── 4. Web Analyzer ────────────────────────────────────────────────────
+        if enabled.get("web", True) and target.scheme in ["http", "https"]:
+            print(f"    ├─ [Web]    Temel dizin ve dosya taraması...")
+            try:
+                web_analyzer = WebAnalyzer(
+                    base_url=target.base_url,
+                    timeout=target.timeout,
+                )
+                findings = web_analyzer.scan()
+                result.add_findings(findings)
+                print(f"    │   └─ {len(findings)} bulgu")
+            except Exception as exc:  # noqa: BLE001
+                print(f"    │   └─ ⚠️  WebAnalyzer hatası: {exc}")
+
+        # ── 5. Intelligence (Korelasyon & Skorlama) ────────────────────────────
+        print(f"    ├─ [Intel]  Zafiyet eşleştirme ve skorlama yapılıyor...")
+        try:
+            vuln_engine = VulnerabilityEngine(result)
+            intel_findings = vuln_engine.scan()
+            if intel_findings:
+                result.add_findings(intel_findings)
+                print(f"    │   ├─ {len(intel_findings)} korelasyon bulgusu eklendi")
+            
+            scorer = ThreatScorer(result)
+            scorer.evaluate()
+            print(f"    │   └─ Skorlama tamamlandı")
+        except Exception as exc:  # noqa: BLE001
+            print(f"    │   └─ ⚠️  Intelligence hatası: {exc}")
 
         result.scan_end = datetime.utcnow().isoformat() + "Z"
         summary = result.summary()
